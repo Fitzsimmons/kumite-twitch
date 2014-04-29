@@ -2,31 +2,43 @@ require './slack-adaptor'
 require './twitch-adaptor'
 require 'eventmachine'
 require 'when'
+require 'circular_queue'
 
 class Bot
-  def startup
+  def setup
     settings = JSON.parse(File.read("settings.json"))
     @sa = SlackAdapator.new(settings)
     @ta = TwitchAdaptor.new
-    @streams = []
+    @streams = CircularQueue.new(2)
     @twitch_usernames = []
-
-    refresh_twitch_usernames.then do
-      refresh_online_streams
-    end
-
-    EventMachine::PeriodicTimer.new(3600) do
-      refresh_twitch_usernames
-    end
-
-    EventMachine::PeriodicTimer.new(30) do
-      refresh_online_streams
-    end
   end
 
   def go
     EventMachine.run do
-      startup
+      setup
+
+      refresh_twitch_usernames.then do
+        refresh_online_streams
+      end
+
+      EventMachine::PeriodicTimer.new(3600) do
+        refresh_twitch_usernames
+      end
+
+      EventMachine::PeriodicTimer.new(60) do
+        refresh_online_streams.then do
+          notify_of_new_streams
+        end
+      end
+
+    end
+  end
+
+  def notify_of_new_streams
+    new_streams = @streams.back - @streams.front
+
+    new_streams.each do |stream|
+      @sa.notify({body: "<http://www.twitch.tv/#{stream}> has gone live!", channel: "#general"})
     end
   end
 
@@ -55,8 +67,8 @@ class Bot
 
     promise = @ta.streaming?(@twitch_usernames)
     promise.then do |streaming_users|
-      @streams = streaming_users
-      puts "Refreshed online twitch streams: #{@streams.inspect}"
+      @streams.enq(streaming_users)
+      puts "Refreshed online twitch streams: #{streaming_users.inspect}"
       deferred.resolver.resolve
     end
 

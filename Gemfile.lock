@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.3.6)
+    circular_queue (0.0.5)
     cookiejar (0.3.2)
     em-http-request (1.1.2)
       addressable (>= 2.3.4)
@@ -29,6 +30,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  circular_queue
   em-http-request
   eventmachine
   json
