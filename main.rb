@@ -30,11 +30,6 @@ class Bot
     end
   end
 
-  def immediately_and_every(seconds, &block)
-    yield
-    EventMachine::PeriodicTimer.new(seconds, &block)
-  end
-
   def refresh_twitch_usernames
     deferred = When.defer
 
