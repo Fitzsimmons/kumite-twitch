@@ -1,4 +1,5 @@
-require 'rest-client'
+require 'em-http-request'
+require 'when'
 require 'json'
 
 class SlackAdapator
@@ -7,6 +8,15 @@ class SlackAdapator
   end
 
   def users
-    JSON.parse(RestClient.get('https://slack.com/api/users.list', params: {token: @token}))['members']
+    deferred = When.defer
+
+    req = EventMachine::HttpRequest.new('https://slack.com/api/users.list').get(query: {token: @token})
+
+    req.callback do
+      data = JSON.parse(req.response)
+      deferred.resolver.resolve(data['members'])
+    end
+
+    return deferred.promise
   end
 end
