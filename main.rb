@@ -38,7 +38,7 @@ class Bot
     new_streams = @streams.back - @streams.front
 
     new_streams.each do |stream|
-      @sa.notify({body: "<http://www.twitch.tv/#{stream}> has gone live!", channel: "#general"})
+      @sa.notify({text: "<http://www.twitch.tv/#{stream}> has gone live!", channel: "#general"})
     end
   end
 
