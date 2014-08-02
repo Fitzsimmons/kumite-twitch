@@ -7,11 +7,39 @@ require './http-handler'
 class TwitchAdaptor
   include HttpHandler
 
+  class StreamInfo
+    def initialize(raw_data)
+      @raw_data = raw_data
+    end
+
+    def live?
+      !@raw_data['stream'].nil?
+    end
+
+    def game_name
+      return nil unless live?
+
+      @raw_data['stream']['channel']['game']
+    end
+
+    def stream_name
+      return nil unless live?
+
+      @raw_data['stream']['channel']['status']
+    end
+
+    def username
+      return nil unless live?
+
+      @raw_data['stream']['channel']['name']
+    end
+  end
+
   def initialize
     @logger = Logger.new("log/twitch.log")
   end
 
-  def streaming?(usernames)
+  def streams(usernames)
     promises = usernames.map do |username|
       deferred = When.defer
       req = EventMachine::HttpRequest.new("https://api.twitch.tv/kraken/streams/#{username}").get
@@ -19,7 +47,8 @@ class TwitchAdaptor
       req.callback do
         logging_non_ok_responses(req, deferred) do
           data = JSON.parse(req.response)
-          deferred.resolver.resolve([username, !data['stream'].nil?])
+          stream_info = StreamInfo.new(data)
+          deferred.resolver.resolve([username, stream_info])
         end
       end
 
@@ -28,10 +57,10 @@ class TwitchAdaptor
 
     deferred = When.defer
     When.all(promises).then do |values|
-      streamers = values.select do |value|
-        value[1] == true
-      end.map(&:first)
-      deferred.resolver.resolve(streamers)
+      streams = values.select do |value|
+        value[1].live?
+      end.map {|pair| pair[1]}
+      deferred.resolver.resolve(streams)
     end
 
     return deferred.promise

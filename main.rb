@@ -38,7 +38,7 @@ class Bot
     new_streams = @streams.back - @streams.front
 
     new_streams.each do |stream|
-      @sa.notify({text: "<http://www.twitch.tv/#{stream}> has gone live!", channel: "#general"})
+      @sa.notify({text: "<http://www.twitch.tv/#{stream.username}> has gone live! (Playing #{stream.game_name})", channel: "#general"})
     end
   end
 
@@ -65,10 +65,10 @@ class Bot
   def refresh_online_streams
     deferred = When.defer
 
-    promise = @ta.streaming?(@twitch_usernames)
-    promise.then do |streaming_users|
-      @streams.enq(streaming_users)
-      puts "Refreshed online twitch streams: #{streaming_users.inspect}"
+    promise = @ta.streams(@twitch_usernames)
+    promise.then do |streams|
+      @streams.enq(streams)
+      puts "Refreshed online twitch streams: #{streams.map(&:username)}"
       deferred.resolver.resolve
     end
 
