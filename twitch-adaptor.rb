@@ -33,6 +33,14 @@ class TwitchAdaptor
 
       @raw_data['stream']['channel']['name']
     end
+
+    def hash
+      username.hash
+    end
+
+    def eql?(other)
+      username == other.username
+    end
   end
 
   def initialize
