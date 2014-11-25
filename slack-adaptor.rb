@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'em-http-request'
 require 'when'
 require 'json'

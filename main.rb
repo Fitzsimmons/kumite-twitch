@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require './slack-adaptor'
 require './twitch-adaptor'
 require 'eventmachine'
