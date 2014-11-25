@@ -47,7 +47,7 @@ class TwitchAdaptor
     @logger = Logger.new("log/twitch.log")
   end
 
-  def streams(usernames)
+  def streams⏲(usernames)
     promises = usernames.map do |username|
       deferred = When.defer
       req = EventMachine::HttpRequest.new("https://api.twitch.tv/kraken/streams/#{username}").get

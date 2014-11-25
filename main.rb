@@ -17,16 +17,16 @@ class Bot
     EventMachine.run do
       setup
 
-      refresh_twitch_usernames.then do
-        refresh_online_streams
+      refresh_twitch_usernames⏲.then do
+        refresh_online_streams⏲
       end
 
       EventMachine::PeriodicTimer.new(3600) do
-        refresh_twitch_usernames
+        refresh_twitch_usernames⏲
       end
 
       EventMachine::PeriodicTimer.new(60) do
-        refresh_online_streams.then do
+        refresh_online_streams⏲.then do
           notify_of_new_streams
         end
       end
@@ -38,14 +38,14 @@ class Bot
     new_streams = @streams.back - @streams.front
 
     new_streams.each do |stream|
-      @sa.notify({text: "<http://www.twitch.tv/#{stream.username}> has gone live! (Playing #{stream.game_name})", channel: "#general"})
+      @sa.notify⏲({text: "<http://www.twitch.tv/#{stream.username}> has gone live! (Playing #{stream.game_name})", channel: "#general"})
     end
   end
 
-  def refresh_twitch_usernames
+  def refresh_twitch_usernames⏲
     deferred = When.defer
 
-    promise = @sa.users
+    promise = @sa.users⏲
     promise.then do |users|
       twitch_users = users.select do |user|
         next false if user['profile']['title'].nil?
@@ -62,10 +62,10 @@ class Bot
     return deferred.promise
   end
 
-  def refresh_online_streams
+  def refresh_online_streams⏲
     deferred = When.defer
 
-    promise = @ta.streams(@twitch_usernames)
+    promise = @ta.streams⏲(@twitch_usernames)
     promise.then do |streams|
       @streams.enq(streams)
       puts "Refreshed online twitch streams: #{streams.map(&:username)}"

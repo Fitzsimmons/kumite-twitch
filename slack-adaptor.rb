@@ -13,7 +13,7 @@ class SlackAdapator
     @logger = Logger.new("log/slack.log")
   end
 
-  def users
+  def users⏲
     deferred = When.defer
 
     req = EventMachine::HttpRequest.new('https://slack.com/api/users.list').get(query: {token: @read_token})
@@ -28,7 +28,7 @@ class SlackAdapator
     return deferred.promise
   end
 
-  def notify(params)
+  def notify⏲(params)
     deferred = When.defer
 
     payload = {'payload' => JSON.generate(params)}
