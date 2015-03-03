@@ -11,7 +11,7 @@ class SlackAdapator
   include HttpHandler
   def initialize(options)
     @read_token = options.fetch('read-token')
-    @write_token = options.fetch('write-token')
+    @webhook_url = options.fetch('webhook-url')
     @logger = Logger.new("log/slack.log")
   end
 
@@ -35,7 +35,10 @@ class SlackAdapator
 
     payload = {'payload' => JSON.generate(params)}
 
-    req = EventMachine::HttpRequest.new("https://kumite.slack.com/services/hooks/incoming-webhook").post(body: payload, query: {token: @write_token})
+    puts @webhook_url.inspect
+    puts payload.inspect
+
+    req = EventMachine::HttpRequest.new(@webhook_url).post(body: payload)
 
     req.callback do
       logging_non_ok_responses(req, deferred) do

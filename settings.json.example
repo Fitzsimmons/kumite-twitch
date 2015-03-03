@@ -1,4 +1,4 @@
 {
-	"token": "nope",
-	"domain": "nope"
+	"read-token": "get from https://api.slack.com/tokens",
+	"webhook-url": "go to configure integrations -> incoming webhook"
 }

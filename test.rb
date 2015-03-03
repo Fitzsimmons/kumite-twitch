@@ -7,16 +7,13 @@ require 'circular_queue'
 def go
   EventMachine.run do
 
-    ta = TwitchAdaptor.new
+    settings = JSON.parse(File.read("settings.json"))
+    puts settings.inspect
+    sa = SlackAdapator.new(settings)
+    promise = sa.notify⏲({text: "Hello, I am notifying you of something", channel: "@justinf"})
 
-    promise = ta.streams(['GfinitySC2'])
-    promise.then do |streams|
-      streams.each do |stream|
-        puts "Name: #{stream.username}"
-        puts "Game: #{stream.game_name}"
-
-        EventMachine.stop
-      end
+    promise.then do
+      EventMachine.stop
     end
 
   end
