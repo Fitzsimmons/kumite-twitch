@@ -35,9 +35,6 @@ class SlackAdapator
 
     payload = {'payload' => JSON.generate(params)}
 
-    puts @webhook_url.inspect
-    puts payload.inspect
-
     req = EventMachine::HttpRequest.new(@webhook_url).post(body: payload)
 
     req.callback do
