@@ -49,14 +49,14 @@ class Bot
 
     promise = @sa.users⏲
     promise.then do |users|
-      twitch_users = users.select do |user|
-        next false if user['profile']['title'].nil?
-        user['profile']['title'].match(/^http:\/\/www\.twitch\.tv/)
+      @twitch_usernames = users.map do |user|
+        next nil if user['profile']['title'].nil?
+        result = user['profile']['title'].match(/twitch\.tv\/(.*)/)
+        next nil if result.nil?
+        result[1]
       end
+      @twitch_usernames.compact!
 
-      @twitch_usernames = twitch_users.map do |tu|
-        tu['profile']['title'].match(/^http:\/\/www\.twitch\.tv\/(.*)$/)[1]
-      end
       puts "Refreshed twitch usernames: #{@twitch_usernames.inspect}"
       deferred.resolver.resolve
     end
