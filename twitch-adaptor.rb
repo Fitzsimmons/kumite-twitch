@@ -36,6 +36,12 @@ class TwitchAdaptor
       @raw_data['stream']['channel']['name']
     end
 
+    def id
+      return nil unless live?
+
+      @raw_data['stream']['_id']
+    end
+
     def hash
       username.hash
     end
