@@ -5,6 +5,7 @@ require './twitch-adaptor'
 require 'eventmachine'
 require 'when'
 require 'circular_queue'
+require 'set'
 
 class Bot
   def setup
@@ -12,6 +13,7 @@ class Bot
     @sa = SlackAdapator.new(settings)
     @ta = TwitchAdaptor.new
     @streams = CircularQueue.new(2)
+    @announced_stream_ids = Set.new
     @twitch_usernames = []
   end
 
@@ -40,8 +42,10 @@ class Bot
     new_streams = @streams.back - @streams.front
 
     new_streams.each do |stream|
-      puts "I think #{stream.id} is a new stream"
-      @sa.notify⏲({text: "<http://www.twitch.tv/#{stream.username}> has gone live! (Playing #{stream.game_name})"})
+      unless @announced_stream_ids.include?(stream.id)
+        @sa.notify⏲({text: "<http://www.twitch.tv/#{stream.username}> has gone live! (Playing #{stream.game_name})"})
+        @announced_stream_ids << stream.id
+      end
     end
   end
 
